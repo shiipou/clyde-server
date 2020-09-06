@@ -7,13 +7,13 @@ import log
 import clyde
 
 struct App {
-	clyde    clyde.App    [skip]
+	clyde    clyde.App
 	host     string
 	port     int
 pub mut:
-	vweb     vweb.Context [skip]
-	file_log log.Log      [skip]
-	cli_log  log.Log      [skip]
+	vweb     vweb.Context
+	file_log log.Log
+	cli_log  log.Log
 }
 
 pub struct Opts {
@@ -23,7 +23,7 @@ pub struct Opts {
 	api_port int = 80
 }
 
-pub fn new(clyde clyde.App, opts Opts) ?&App {
+pub fn new(clyde clyde.App, opts Opts) ?App {
 	return App{
 		clyde: clyde
 		host: opts.api_host

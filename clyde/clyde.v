@@ -19,14 +19,17 @@ pub struct Opts {
 	conn_uri string = '/var/run/docker.sock'
 }
 
-pub fn new(opts Opts) ?&App {
+pub fn new(opts Opts) ?App {
 	vm := vmod.decode(@VMOD_FILE) or {
 		panic(err)
 	}
+	docker := docker.new(docker.Opts{
+		conn_uri: opts.conn_uri
+	}) or {
+		panic(err)
+	}
 	clyde := App{
-		docker: docker.new(docker.Opts{
-			conn_uri: opts.conn_uri
-		})
+		docker: docker
 		info: vm
 	}
 	return clyde

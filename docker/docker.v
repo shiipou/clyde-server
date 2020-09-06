@@ -16,7 +16,7 @@ pub struct Opts {
 	api_version string = 'v1.30'
 }
 
-pub fn new(opts Opts) ?&App {
+pub fn new(opts Opts) ?App {
 	return App{
 		conn_uri: opts.conn_uri
 	}

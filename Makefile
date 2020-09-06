@@ -1,7 +1,8 @@
 VC=v
 
 build: clean fmt
-	$(VC) -gc docker_clyde.v >> /dev/null
+	if ! [ -d build/ ]; then mkdir build; fi
+	$(VC) -o build/clyde .
 
 install: build
 	[ -d ~/.vmodules/old/docker_clyde ] && rm -rf ~/.vmodules/old/docker_clyde && mkdir -p ~/.vmodules/old >> /dev/null
