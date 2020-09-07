@@ -7,9 +7,11 @@ import log
 import clyde
 
 struct App {
-	clyde    clyde.App
 	host     string
 	port     int
+mut:
+	clyde    clyde.App
+	running  bool = false
 pub mut:
 	vweb     vweb.Context
 	file_log log.Log
@@ -23,21 +25,24 @@ pub struct Opts {
 	api_port int = 80
 }
 
-pub fn new(clyde clyde.App, opts Opts) ?App {
+pub fn new(opts Opts) ?App {
 	return App{
-		clyde: clyde
 		host: opts.api_host
 		port: opts.api_port
 	}
 }
 
-pub fn (app App) start() {
-	println('Starting Docker Clyde...')
-	println('Clyde version is : $app.clyde.get_info().version')
+pub fn (mut app App) start() {
+	app.running = true
 	vweb.run<App>(app.port)
 }
 
 pub fn (mut app App) init_once() {
+	app.init()
+}
+
+pub fn (mut app App) init() {
+	app.info('Init Clyde API...')
 	os.mkdir('logs')
 	app.file_log = log.Log{}
 	app.cli_log = log.Log{}
@@ -46,20 +51,22 @@ pub fn (mut app App) init_once() {
 	date := time.now()
 	date_s := '$date.ymmdd()'
 	app.file_log.set_full_logpath('./logs/api_${date_s}.log')
-	app.info('init_once()')
+	app.clyde = clyde.new(clyde.Opts{}) or {
+		panic(err)
+	}
+	app.run()
 }
 
-pub fn (mut app App) init() {
-	version := os.read_file('static/assets/version') or {
-		app.clyde.get_info().version
-	}
-	if version != app.clyde.get_info().version {
+fn (mut app App) run() {
+	app.info('Starting Clyde API...')
+	if !app.clyde.is_running() {
+		app.info('Clyde is not running so API will start it.')
+		app.clyde.start()
 	}
 }
 
-fn (mut app App) upgrade(from, to string) ?bool {
-	app.info('Upgrade from version $from to version $to')
-	os.write_file('static/assets/version', app.clyde.get_info().version)
+pub fn (app App) get_clyde() clyde.App {
+	return app.clyde
 }
 
 pub fn (mut app App) info(msg string) {

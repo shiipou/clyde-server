@@ -1,3 +1,14 @@
+### V ###
+
+# .v4p backup files
+logs/
+
+# Dynamic plugins .dll
+build/
+
+
+### C ###
+
 # Prerequisites
 *.d
 

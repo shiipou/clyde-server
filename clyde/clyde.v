@@ -3,13 +3,15 @@ module clyde
 import v.vmod
 import log
 import docker
+import os
+import time
 
 pub struct App {
 mut:
 	running  bool = false
 	docker   docker.App
 pub:
-	info     vmod.Manifest
+	version  string
 pub mut:
 	file_log log.Log
 	cli_log  log.Log
@@ -23,29 +25,71 @@ pub fn new(opts Opts) ?App {
 	vm := vmod.decode(@VMOD_FILE) or {
 		panic(err)
 	}
-	docker := docker.new(docker.Opts{
-		conn_uri: opts.conn_uri
+	mut docker := docker.new(docker.Opts{
+		uri: opts.conn_uri
 	}) or {
 		panic(err)
 	}
-	clyde := App{
+	mut clyde := App{
 		docker: docker
-		info: vm
+		version: 'v$vm.version'
 	}
 	return clyde
 }
 
-pub fn (mut app App) start() {
-	app.running = true
-	println('Starting Docker Clyde...')
-	println('Clyde version is : $app.info.version')
-	app.docker.get_version()
+fn (mut app App) init() {
+	os.mkdir('logs')
+	app.file_log = log.Log{}
+	app.cli_log = log.Log{}
+	app.file_log.set_level(.info)
+	app.cli_log.set_level(.info)
+	date := time.now()
+	date_s := '$date.ymmdd()'
+	app.file_log.set_full_logpath('./logs/clyde_${date_s}.log')
+	app.info('Starting Docker Clyde...')
+	app.info('Clyde version: $app.version')
+	app.run()
 }
 
-pub fn (app App) get_info() vmod.Manifest {
-	return app.info
+pub fn (mut app App) start() {
+	app.running = true
+	app.init()
+}
+
+fn (mut app App) run() {
+	version := app.get_docker_version() or {
+		panic(err)
+	}
+	println(version)
 }
 
 pub fn (app App) is_running() bool {
 	return app.running
+}
+
+fn (mut app App) upgrade(from, to string) ?bool {
+	app.info('Upgrade from version $from to version $to')
+	os.write_file('static/assets/version', app.version)
+}
+
+pub fn (app App) get_docker_version() ?string {
+	version := app.docker.get_version() or {
+		panic(err)
+	}
+	return version
+}
+
+pub fn (mut app App) info(msg string) {
+	app.file_log.info(msg)
+	app.cli_log.info(msg)
+}
+
+pub fn (mut app App) warn(msg string) {
+	app.file_log.warn(msg)
+	app.cli_log.warn(msg)
+}
+
+pub fn (mut app App) error(msg string) {
+	app.file_log.error(msg)
+	app.cli_log.error(msg)
 }

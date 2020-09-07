@@ -4,9 +4,16 @@ build: clean fmt
 	if ! [ -d build/ ]; then mkdir build; fi
 	$(VC) -o build/clyde .
 
+run: build
+	build/clyde
+
+debug: clean fmt
+	v -live -o build/clyde run .
+
 install: build
-	[ -d ~/.vmodules/old/docker_clyde ] && rm -rf ~/.vmodules/old/docker_clyde && mkdir -p ~/.vmodules/old >> /dev/null
-	[ -d ~/.vmodules/docker_clyde ] && mv ~/.vmodules/docker_clyde ~/.vmodules/old/docker_clyde >> /dev/null
+	if ! [ -d  ~/.vmodules/old ]; then mkdir -p ~/.vmodules/old >> /dev/null; fi
+	if [ -d ~/.vmodules/old/docker_clyde ]; then rm -rf ~/.vmodules/old/docker_clyde >> /dev/null; fi
+	if [ -d ~/.vmodules/docker_clyde ]; then mv ~/.vmodules/docker_clyde ~/.vmodules/old/docker_clyde >> /dev/null; fi
 	mkdir -p ~/.vmodules/docker_clyde
 	cp -r ./* ~/.vmodules/docker_clyde
 
