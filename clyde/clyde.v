@@ -57,10 +57,10 @@ pub fn (mut app App) start() {
 }
 
 fn (mut app App) run() {
-	version := app.get_docker_version() or {
+	instances := app.docker.get_instances() or {
 		panic(err)
 	}
-	println(version)
+	println(instances)
 }
 
 pub fn (app App) is_running() bool {
@@ -70,13 +70,6 @@ pub fn (app App) is_running() bool {
 fn (mut app App) upgrade(from, to string) ?bool {
 	app.info('Upgrade from version $from to version $to')
 	os.write_file('static/assets/version', app.version)
-}
-
-pub fn (app App) get_docker_version() ?string {
-	version := app.docker.get_version() or {
-		panic(err)
-	}
-	return version
 }
 
 pub fn (mut app App) info(msg string) {

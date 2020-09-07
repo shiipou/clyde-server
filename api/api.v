@@ -38,10 +38,6 @@ pub fn (mut app App) start() {
 }
 
 pub fn (mut app App) init_once() {
-	app.init()
-}
-
-pub fn (mut app App) init() {
 	app.info('Init Clyde API...')
 	os.mkdir('logs')
 	app.file_log = log.Log{}
@@ -55,6 +51,9 @@ pub fn (mut app App) init() {
 		panic(err)
 	}
 	app.run()
+}
+
+pub fn (mut app App) init() {
 }
 
 fn (mut app App) run() {

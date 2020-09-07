@@ -1,4 +1,7 @@
-FROM scratch
+FROM ubuntu:20.04
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl libssl-dev
 
 ADD build/clyde /
 

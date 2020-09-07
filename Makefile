@@ -2,13 +2,13 @@ VC=v
 
 build: clean fmt
 	if ! [ -d build/ ]; then mkdir build; fi
-	$(VC) -o build/clyde .
+	$(VC) -prod -obf -o build/clyde .
 
 run: build
 	build/clyde
 
 debug: clean fmt
-	v -live -o build/clyde run .
+	v -live -color -cg -bv2 -o build/clyde run .
 
 install: build
 	if ! [ -d  ~/.vmodules/old ]; then mkdir -p ~/.vmodules/old >> /dev/null; fi
